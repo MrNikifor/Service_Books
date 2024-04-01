@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>servise books</title>
+</head>
+<body>
+<h1>Добро пожаловать в библиотеку!</h1>
+<div>
+    <table>
+        <tr>
+            <td>ID</td>
+            <td>ID_Reader</td>
+            <td>ID_Books</td>
+        </tr>
+        <tbody>
+        <tr th:each="issues : ${issues}">
+            <td th:text="${issues.getId}"></td>
+            <td th:text="${issues.getIdReader}"></td>
+            <td th:text="${issues.getIdBooks}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
