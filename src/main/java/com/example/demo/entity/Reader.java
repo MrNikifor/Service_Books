@@ -17,6 +17,6 @@ public class Reader {
     @Column(name = "reader_name")
     private String name;
     @Column(name = "count_of_books")
-    private int countOfBooks;
+    private int countOfBooks = 0;
 
 }

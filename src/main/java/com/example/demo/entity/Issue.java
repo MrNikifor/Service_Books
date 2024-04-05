@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,12 +25,12 @@ public class Issue {
     @JoinColumn(name = "reader_id")
     private Reader reader;
     @ManyToMany
-    @JoinColumn(name = "book_id")
+    @Column(name = "book_id")
     private List<Book> books;
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime created_at;
-    @UpdateTimestamp
+    @Timestamp
     @Column(name = "returned_at")
     private  LocalDateTime returned_at;
 

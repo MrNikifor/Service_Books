@@ -7,27 +7,21 @@ import com.example.demo.entity.Issue;
 import com.example.demo.entity.Reader;
 import com.example.demo.repository.BookRepository;
 import com.example.demo.repository.IssueRepository;
-import com.example.demo.repository.ReaderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class IssueService {
     private final BookRepository bookRepository;
-    private final ReaderRepository readerRepository;
     private final IssueRepository issueRepository;
     private final ReaderService readerService;
-    @Value("${application.issue.max-allowed-books}")
-    private int maxCountOfBooks;
 
     public IssueResponse creatIssue(IssueRequest request) throws IllegalAccessException {
         Reader reader = readerService.getById(request.getReaderId());
@@ -84,6 +78,8 @@ public class IssueService {
                 readerBooks++;
             }
         }
+
+        int maxCountOfBooks = 3;
         if (readerBooks >= countCheck(maxCountOfBooks)) {
             log.error("У читателя слишком много книг!");
             return true;
