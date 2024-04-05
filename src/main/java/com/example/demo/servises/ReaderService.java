@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,25 +24,28 @@ public class ReaderService {
     private final IssueRepository issueRepository;
 
     public List<Reader> getAllReader() {
-        List<Reader> readers = readerRepository.getAllReader();
+        List<Reader> readers = readerRepository.findAll();
         if(readers.isEmpty()){
             log.error("Читатель ненайден!");
             throw new NoSuchElementException("Читатель ненайден!");
         }
         return readers;
     }
-    public Reader getById(long id){
-        Reader reader = readerRepository.findById(id);
-        if(reader== null){
-            log.error("Читатели не найдены!");
-            throw new NoSuchElementException("Читатели не найдены!");
-        }
-        return reader;
+    public Reader getById(Long id){
+       return readerRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Читатели не найдены!"));
+
     }
-    public void remove(long id){
-        readerRepository.remove(id);
+    public void remove(Long id){
+        readerRepository.deleteById(id);
     }
-    public List<Issue> getAllByReaderId(long id){
-        return issueRepository.getAllByReaderId(id);
+    public List<Issue> getAllByReaderId(Long id){
+        return issueRepository.findAllByReaderId(id);
+    }
+    public void updateReader(Reader reader){
+        Reader newReader = new Reader();
+        newReader.setId(reader.getId());
+        newReader.setName(reader.getName());
+        newReader.setCountOfBooks(reader.getCountOfBooks());
+        readerRepository.save(newReader);
     }
 }

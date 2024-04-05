@@ -1,17 +1,22 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@Entity
+@Table(name = "readers")
 public class Reader {
-    private static long genId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
-    private final long id;
-    private final String name;
+    @Column(name = "reader_name")
+    private String name;
+    @Column(name = "count_of_books")
     private int countOfBooks;
 
-    public Reader(String name) {
-        id = genId++;
-        this.name = name;
-    }
 }

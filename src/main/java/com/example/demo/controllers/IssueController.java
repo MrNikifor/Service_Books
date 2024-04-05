@@ -40,10 +40,10 @@ public class IssueController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<IssueResponse> getById(@PathVariable long id) {
+    public ResponseEntity<Issue> getById(@PathVariable long id) {
         try {
-            IssueResponse issueResponse = issueService.getById(id);
-            return new ResponseEntity<>(issueResponse,HttpStatus.OK);
+            Issue issue = issueService.getById(id);
+            return new ResponseEntity<>(issue,HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

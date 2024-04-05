@@ -2,6 +2,7 @@ package com.example.demo.servises;
 
 import com.example.demo.controllers.IssueRequest;
 import com.example.demo.controllers.IssueResponse;
+import com.example.demo.entity.Book;
 import com.example.demo.entity.Issue;
 import com.example.demo.entity.Reader;
 import com.example.demo.repository.BookRepository;
@@ -15,9 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -26,72 +25,62 @@ public class IssueService {
     private final BookRepository bookRepository;
     private final ReaderRepository readerRepository;
     private final IssueRepository issueRepository;
+    private final ReaderService readerService;
     @Value("${application.issue.max-allowed-books}")
     private int maxCountOfBooks;
 
     public IssueResponse creatIssue(IssueRequest request) throws IllegalAccessException {
-        Reader reader = readerRepository.findById(request.getReaderId());
+        Reader reader = readerService.getById(request.getReaderId());
 
-        if (bookRepository.findById(request.getBookId()) == null) {
-            log.error("Не удалось найти книгу с id " + request.getBookId());
-            throw new NoSuchElementException("Не удалось найти книгу с id " + request.getBookId());
-        }
-        if (reader == null) {
-            log.error("Не удалось найти читателя с id " + request.getReaderId());
-            throw new NoSuchElementException("Не удалось найти читателя с id " + request.getReaderId());
-        }
+        Book book = bookRepository.findById(request.getBookId())
+                .orElseThrow(() -> new NoSuchElementException("Книга не найдена!"));
 
         if (isReaderHaveBook(request)) {
             log.error("У читателя уже есть книга!");
             throw new IllegalAccessException("У читателя уже есть книга!");
         }
 
-
-        Issue issue = new Issue(request.getReaderId(), request.getBookId(), LocalDateTime.now());
-        issueRepository.creatIssue(issue);
+        Issue issue = new Issue(reader, List.of(book));
+        issueRepository.save(issue);
 
         reader.setCountOfBooks(reader.getCountOfBooks() + 1);
+        readerService.updateReader(reader);
 
-        return createResponse(issue);
+        return createResponse(request);
     }
 
     private int countCheck(int max) {
         return max == 0 ? 1 : max;
     }
 
-    private IssueResponse createResponse(Issue issue) {
-        String readerName = readerRepository.findById(issue.getIdReader()).getName();
-        String bookName = bookRepository.findById(issue.getIdBook()).getName();
+    private IssueResponse createResponse(IssueRequest issue) {
+        String readerName = readerService.getById(issue.getReaderId()).getName();
+        String bookName = bookRepository.findById(issue.getBookId()).get().getName();
 
         IssueResponse response = new IssueResponse();
         response.setReaderName(readerName);
         response.setBookName(bookName);
 
-        response.setIssued_at(issue.getIssued_at());
-        response.setReturned_at(issue.getReturned_at());
+        response.setIssued_at(LocalDateTime.now());
 
         return response;
     }
 
-    public IssueResponse getById(long id) {
-        Issue issue = issueRepository.findById(id);
-        if (issue == null) {
-            log.error("Книга не выдана!");
-            throw new NoSuchElementException("Книга не выдана!");
-        }
-        return createResponse(issue);
+    public Issue getById(Long id) {
+        return issueRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Книга не выдана!"));
     }
 
     public List<Issue> getAll() {
-        return issueRepository.getAll();
+        return issueRepository.findAll();
     }
 
     public boolean isReaderHaveBook(IssueRequest issueRequest) {
-        long readerId = issueRequest.getReaderId();
+        Long readerId = issueRequest.getReaderId();
         int readerBooks = 0;
 
         for (Issue issue : getAll()) {
-            if (issue.getIdReader() == readerId && issue.getReturned_at() == null) {
+            if (issue.getReader().getId().equals(readerId) && issue.getReturned_at() == null) {
                 readerBooks++;
             }
         }
@@ -102,8 +91,18 @@ public class IssueService {
         return false;
     }
 
-    public void returnBook(long id) {
-        issueRepository.findById(id).setReturned_at(LocalDateTime.now());
+    public void returnBook(Long id) {
+        Issue issue = issueRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Нет такого заказа!"));
+
+        Issue newIssue = new Issue();
+        newIssue.setId(issue.getId());
+        newIssue.setBooks(issue.getBooks());
+        newIssue.setReader(issue.getReader());
+        newIssue.setCreated_at(issue.getCreated_at());
+        newIssue.setReturned_at(LocalDateTime.now());
+
+        issueRepository.save(newIssue);
     }
 
 }
