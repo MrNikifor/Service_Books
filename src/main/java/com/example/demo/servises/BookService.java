@@ -1,16 +1,14 @@
 package com.example.demo.servises;
 
+
 import com.example.demo.entity.Book;
 import com.example.demo.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor

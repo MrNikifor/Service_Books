@@ -2,6 +2,9 @@ package com.example.demo.controllers;
 
 import com.example.demo.entity.Issue;
 import com.example.demo.servises.IssueService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +23,6 @@ public class IssueController {
 
     private final IssueService issueService;
 
-
     @PostMapping
     public ResponseEntity<IssueResponse> issueBook(@RequestBody IssueRequest issueRequest) {
         log.info("Пропустил запрос на выдачу: readerId={}, bookId={}"
@@ -32,9 +34,9 @@ public class IssueController {
             return response;
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (IllegalAccessException e){
+        } catch (IllegalAccessException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
         }
     }
@@ -43,19 +45,29 @@ public class IssueController {
     public ResponseEntity<Issue> getById(@PathVariable long id) {
         try {
             Issue issue = issueService.getById(id);
-            return new ResponseEntity<>(issue,HttpStatus.OK);
+            return new ResponseEntity<>(issue, HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
 
+    @Operation(summary = "get all issues", description = "Загружает все заказы, которые есть в системе")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @GetMapping
-    public ResponseEntity<List<Issue>> getAll(){
-        return new ResponseEntity<>(issueService.getAll(),HttpStatus.OK);
+    public ResponseEntity<List<Issue>> getAll() {
+        return new ResponseEntity<>(issueService.getAll(), HttpStatus.OK);
     }
+
     @PutMapping("/{issueId}")
-    public ResponseEntity returnBook(@PathVariable long issueId){
+    public ResponseEntity returnBook(@PathVariable long issueId) {
         issueService.returnBook(issueId);
-        return  new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
