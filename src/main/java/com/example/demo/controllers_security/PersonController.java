@@ -1,3 +1,4 @@
+/*
 package com.example.demo.controllers_security;
 
 import com.example.demo.servises.PersonService;
@@ -34,3 +35,4 @@ public class PersonController {
         return "auth";
     }
 }
+*/

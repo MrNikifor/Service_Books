@@ -1,3 +1,4 @@
+/*
 package com.example.demo.configurations;
 
 
@@ -43,3 +44,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder(8);
     }
 }
+*/
